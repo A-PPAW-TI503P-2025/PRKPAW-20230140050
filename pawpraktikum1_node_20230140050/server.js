@@ -1,16 +1,24 @@
 const express = require("express");
-const cors = require("cors"); // Tambahkan baris ini
+const cors = require("cors");
 const app = express();
-const port = 5000;
+const PORT = 3001;
 
-// Gunakan middleware cors
-app.use(cors()); // Tambahkan baris ini
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
-// Endpoint ini akan diakses oleh React
 app.get("/", (req, res) => {
-  res.json({ message: "Hello from Node.js Server!" });
+  res.send("Home Page for API");
 });
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Express server running at http://localhost:${PORT}/`);
 });
+
+const ruteBuku = require("./routes/books");
+
+app.use("/api/books", ruteBuku);
