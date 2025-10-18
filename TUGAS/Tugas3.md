@@ -8,4 +8,6 @@
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bf19595a-5641-49b4-81fa-c818888402e8" />
 5. reports/daily
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/19e05f6a-3e1e-45d0-9a0e-9135bfc4d2d8" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8df44fd0-5306-4384-a3a3-9aaff8f885e1" />
+
 
