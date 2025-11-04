@@ -1,33 +1,38 @@
-// <--- 1. IMPOR MODEL ANDA
-// Pastikan Anda mengimpor model dari database
-// Sesuaikan nama 'Presensi' jika nama file model Anda berbeda
 const { Presensi } = require("../models");
+const { Op } = require("sequelize");
 
-// <--- 2. UBAH MENJADI FUNGSI 'async'
-// Kita butuh 'async' agar bisa menggunakan 'await' untuk operasi database
 exports.getDailyReport = async (req, res) => {
-  // <--- 3. GUNAKAN BLOK 'try...catch'
-  // Ini SANGAT PENTING untuk menangani error jika database gagal
   try {
-    console.log("Controller: Mengambil data laporan harian dari DATABASE...");
+    const { nama, tanggalMulai, tanggalSelesai } = req.query;
+    let options = { where: {} };
 
-    // <--- 4. DEFINISIKAN 'presensiRecords'
-    // Ini adalah baris yang hilang.
-    // Kita mengambil SEMUA data dari tabel 'Presensi'
-    const presensiRecords = await Presensi.findAll();
+    if (nama) {
+      options.where.nama = {
+        [Op.like]: `%${nama}%`,
+      };
+    }
 
-    // Jika berhasil, kirim data sebagai JSON
+    if (tanggalMulai && tanggalSelesai) {
+      const startDate = new Date(tanggalMulai);
+      startDate.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(tanggalSelesai);
+      endDate.setHours(23, 59, 59, 999);
+
+      options.where.checkIn = {
+        [Op.between]: [startDate, endDate],
+      };
+    }
+
+    const records = await Presensi.findAll(options);
+
     res.json({
       reportDate: new Date().toLocaleDateString(),
-      data: presensiRecords, // Variabel ini sekarang sudah terdefinisi
+      data: records,
     });
   } catch (error) {
-    // <--- 5. TANGANI ERROR
-    // Jika ada masalah (koneksi database putus, tabel tidak ada, dll.)
-    console.error("Error saat mengambil laporan harian:", error);
-    res.status(500).json({
-      message: "Gagal mengambil data dari server.",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Gagal mengambil laporan", error: error.message });
   }
 };
