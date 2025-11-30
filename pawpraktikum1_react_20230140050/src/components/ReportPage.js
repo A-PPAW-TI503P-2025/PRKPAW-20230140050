@@ -5,178 +5,134 @@ import { useNavigate } from "react-router-dom";
 function ReportPage() {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchReports = async (query = "") => {
+  const fetchReports = async (query) => {
     const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/reports/daily",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { nama: query },
-        }
-      );
-      setReports(response.data.data || response.data);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const baseUrl = "http://localhost:3001/api/reports/daily";
+      const url = query ? `${baseUrl}?nama=${query}` : baseUrl;
+
+      const response = await axios.get(url, config);
+      setReports(response.data.data);
       setError(null);
     } catch (err) {
-      setError("Gagal mengambil data laporan.");
+      setReports([]);
+      setError(
+        err.response ? err.response.data.message : "Gagal mengambil data"
+      );
     }
   };
 
   useEffect(() => {
-    fetchReports();
-  }, []);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return <span className="text-gray-400 italic">-</span>;
-    return new Date(dateString).toLocaleString("id-ID", {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    fetchReports("");
+  }, [navigate]);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchReports(searchTerm);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border-l-8 border-purple-600 flex flex-col md:flex-row justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-800">
-            Laporan Presensi Harian
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Data kehadiran seluruh mahasiswa/pegawai.
-          </p>
-        </div>
+    <div className="max-w-6xl mx-auto p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        Laporan Presensi Harian
+      </h1>
 
-        {/* Search Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            fetchReports(searchTerm);
-          }}
-          className="mt-4 md:mt-0 relative w-full md:w-72"
+      <form onSubmit={handleSearchSubmit} className="mb-6 flex space-x-2">
+        <input
+          type="text"
+          placeholder="Cari berdasarkan nama..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+        <button
+          type="submit"
+          className="py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
         >
-          <input
-            type="text"
-            placeholder="Cari nama..."
-            className="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="absolute right-2 top-1.5 bg-purple-100 p-1 rounded-md text-purple-600 hover:bg-purple-200 transition"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
-            </svg>
-          </button>
-        </form>
-      </div>
+          Cari
+        </button>
+      </form>
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-xl shadow-sm border border-red-200">
-          {error}
-        </div>
+        <p className="text-red-600 bg-red-100 p-4 rounded-md mb-4">{error}</p>
       )}
 
-      {/* Tabel Data */}
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-        <div className="overflow-x-auto">
+      {!error && (
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Masuk
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Check-In
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Pulang
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Check-Out
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Lokasi (Lat, Lng)
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Latitude
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Longitude
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {reports.length > 0 ? (
-                reports.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-purple-50 transition duration-150"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold mr-3">
-                          {item.user?.nama?.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="text-sm font-semibold text-gray-900">
-                          {item.user?.nama || "User Dihapus"}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {formatDate(item.checkIn)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          item.checkOut
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
-                      >
-                        {formatDate(item.checkOut)}
-                      </span>
+                reports.map((presensi) => (
+                  <tr key={presensi.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {presensi.user ? presensi.user.nama : "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.latitude && item.longitude ? (
-                        <div className="flex flex-col text-xs">
-                          <span>Lat: {item.latitude}</span>
-                          <span>Lng: {item.longitude}</span>
-                        </div>
-                      ) : (
-                        <span className="text-red-400 italic text-xs">
-                          Lokasi tidak ada
-                        </span>
-                      )}
+                      {new Date(presensi.checkIn).toLocaleString("id-ID", {
+                        timeZone: "Asia/Jakarta",
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.checkOut
+                        ? new Date(presensi.checkOut).toLocaleString("id-ID", {
+                            timeZone: "Asia/Jakarta",
+                          })
+                        : "Belum Check-Out"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.latitude || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.longitude || "N/A"}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan="4"
-                    className="px-6 py-10 text-center text-gray-500"
+                    colSpan="3"
+                    className="px-6 py-4 text-center text-gray-500"
                   >
-                    Belum ada data presensi hari ini.
+                    Tidak ada data yang ditemukan.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
     </div>
   );
 }
