@@ -1,13 +1,15 @@
 const { Presensi } = require("../models");
 const { format } = require("date-fns-tz");
 const timeZone = "Asia/Jakarta";
-
 const { body, validationResult } = require("express-validator");
 
 exports.CheckIn = async (req, res) => {
   try {
     const { id: userId, nama: userName } = req.user;
     const waktuSekarang = new Date();
+
+    // PERBAIKAN: Ambil data lokasi dari body request frontend
+    const { latitude, longitude } = req.body;
 
     const existingRecord = await Presensi.findOne({
       where: { userId: userId, checkOut: null },
@@ -21,13 +23,16 @@ exports.CheckIn = async (req, res) => {
 
     const newRecord = await Presensi.create({
       userId: userId,
-      nama: userName,
       checkIn: waktuSekarang,
+      // PERBAIKAN: Simpan data lokasi ke kolom database
+      latitude: latitude,
+      longitude: longitude,
     });
 
     const formattedData = {
+      id: newRecord.id,
       userId: newRecord.userId,
-      nama: newRecord.nama,
+      nama: userName,
       checkIn: format(newRecord.checkIn, "yyyy-MM-dd HH:mm:ssXXX", {
         timeZone,
       }),
@@ -43,6 +48,7 @@ exports.CheckIn = async (req, res) => {
       data: formattedData,
     });
   } catch (error) {
+    console.error(error); // Agar error muncul di terminal
     res
       .status(500)
       .json({ message: "Terjadi kesalahan pada server", error: error.message });
@@ -53,6 +59,9 @@ exports.CheckOut = async (req, res) => {
   try {
     const { id: userId, nama: userName } = req.user;
     const waktuSekarang = new Date();
+
+    // PERBAIKAN: Tangkap data lokasi dari body (jika dikirim frontend)
+    const { latitude, longitude } = req.body;
 
     const recordToUpdate = await Presensi.findOne({
       where: { userId: userId, checkOut: null },
@@ -65,11 +74,17 @@ exports.CheckOut = async (req, res) => {
     }
 
     recordToUpdate.checkOut = waktuSekarang;
+
+    // Opsional: Jika ingin menyimpan lokasi pulang juga (jika logic bisnis mengizinkan update lokasi)
+    // recordToUpdate.latitude = latitude;
+    // recordToUpdate.longitude = longitude;
+
     await recordToUpdate.save();
 
     const formattedData = {
+      id: recordToUpdate.id,
       userId: recordToUpdate.userId,
-      nama: recordToUpdate.nama,
+      nama: userName,
       checkIn: format(recordToUpdate.checkIn, "yyyy-MM-dd HH:mm:ssXXX", {
         timeZone,
       }),
@@ -104,6 +119,7 @@ exports.deletePresensi = async (req, res) => {
         .status(404)
         .json({ message: "Catatan presensi tidak ditemukan." });
     }
+
     if (recordToDelete.userId !== userId) {
       return res
         .status(403)
@@ -139,12 +155,11 @@ exports.updatePresensi = async (req, res) => {
     }
 
     const presensiId = req.params.id;
-    const { checkIn, checkOut, nama } = req.body;
+    const { checkIn, checkOut } = req.body;
 
-    if (checkIn === undefined && checkOut === undefined && nama === undefined) {
+    if (checkIn === undefined && checkOut === undefined) {
       return res.status(400).json({
-        message:
-          "Request body tidak berisi data yang valid untuk diupdate (checkIn, checkOut, atau nama).",
+        message: "Request body tidak berisi data yang valid untuk diupdate.",
       });
     }
 
@@ -157,7 +172,7 @@ exports.updatePresensi = async (req, res) => {
 
     recordToUpdate.checkIn = checkIn || recordToUpdate.checkIn;
     recordToUpdate.checkOut = checkOut || recordToUpdate.checkOut;
-    recordToUpdate.nama = nama || recordToUpdate.nama;
+
     await recordToUpdate.save();
 
     res.json({
