@@ -8,7 +8,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Relasi ke User sudah benar
+      Presensi.belongsTo(models.User, {
+        foreignKey: "userId",
+        as: "user",
+      });
     }
   }
   Presensi.init(
@@ -17,10 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      nama: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+      // Kolom 'nama' sudah dihapus (Benar)
+
       checkIn: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -29,6 +31,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true, // Boleh null
       },
+      // --- PERBAIKAN: MENAMBAHKAN DEFINISI LATITUDE & LONGITUDE ---
+      latitude: {
+        type: DataTypes.DECIMAL(10, 8), // Sesuaikan tipe data dengan migrasi
+        allowNull: true,
+      },
+      longitude: {
+        type: DataTypes.DECIMAL(11, 8), // Sesuaikan tipe data dengan migrasi
+        allowNull: true,
+      },
+      // ------------------------------------------------------------
     },
     {
       sequelize,

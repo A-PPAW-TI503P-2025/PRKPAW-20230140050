@@ -2,73 +2,80 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-// Ikon (gunakan ikon yang sama seperti login, tambah ikon user & role)
+// --- Komponen Ikon Modern ---
+const IconUser = () => (
+  <svg
+    className="w-5 h-5 text-gray-400"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+    />
+  </svg>
+);
 const IconEmail = () => (
-  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-    <svg
-      className="w-5 h-5 text-gray-400"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path d="M2.003 5.884l7.997 5.191 7.997-5.191A2 2 0 0016.172 5H3.828a2 2 0 00-1.825.884zM18 8.116l-7.997 5.191L2 8.116V14a2 2 0 002 2h12a2 2 0 002-2V8.116z"></path>
-    </svg>
-  </span>
+  <svg
+    className="w-5 h-5 text-gray-400"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+    />
+  </svg>
 );
 const IconPassword = () => (
-  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-    <svg
-      className="w-5 h-5 text-gray-400"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path d="M10 2a5 5 0 00-5 5v2H3a2 2 0 00-2 2v5a2 2 0 002 2h14a2 2 0 002-2v-5a2 2 0 00-2-2h-2V7a5 5 0 00-5-5zM9 11v3H7v-3H9zM10 7a3 3 0 013 3v1H7V10a3 3 0 013-3z"></path>
-    </svg>
-  </span>
-);
-const IconUser = () => (
-  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-    <svg
-      className="w-5 h-5 text-gray-400"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path
-        fillRule="evenodd"
-        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-        clipRule="evenodd"
-      ></path>
-    </svg>
-  </span>
-);
-const IconRole = () => (
-  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-    <svg
-      className="w-5 h-5 text-gray-400"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path
-        fillRule="evenodd"
-        d="M11.49 3.17c.12-.22.38-.22.5 0l1.24 2.26L15.5 6c.24.04.34.33.15.5l-2.02 1.96.48 2.76c.04.24-.2.44-.42.32L11 10.2l-2.69 1.34c-.22.11-.46-.08-.42-.32l.48-2.76L6.35 6.5c-.19-.17-.09-.46.15-.5l2.27-.34 1.24-2.26zM10 15c-3.87 0-7 3.13-7 7h14c0-3.87-3.13-7-7-7z"
-        clipRule="evenodd"
-      ></path>
-    </svg>
-  </span>
-);
-const IconAppLogo = () => (
   <svg
-    className="w-12 h-12 text-white"
+    className="w-5 h-5 text-gray-400"
     fill="none"
-    stroke="currentColor"
     viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
+    stroke="currentColor"
   >
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
       d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-    ></path>
+    />
+  </svg>
+);
+const IconRole = () => (
+  <svg
+    className="w-5 h-5 text-gray-400"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+    />
+  </svg>
+);
+const IconAppLogo = () => (
+  <svg
+    className="w-10 h-10 text-white"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+    />
   </svg>
 );
 
@@ -78,134 +85,149 @@ function RegisterPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("mahasiswa");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
     try {
       await axios.post("http://localhost:3001/api/auth/register", {
-        nama: nama,
-        email: email,
-        password: password,
-        role: role,
+        nama,
+        email,
+        password,
+        role,
       });
       navigate("/login");
     } catch (err) {
       setError(err.response ? err.response.data.message : "Registrasi gagal");
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800 p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-8 md:p-12 w-full max-w-md">
-        {/* Header: Logo dan Judul */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 p-6">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-10 w-full max-w-md border border-white/20">
+        {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-blue-600 p-3 rounded-full mb-4">
+          <div className="bg-gradient-to-tr from-blue-500 to-indigo-600 p-4 rounded-full shadow-lg mb-4 transform hover:scale-105 transition duration-300">
             <IconAppLogo />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
             Buat Akun Baru
           </h2>
-          <p className="text-gray-500 mt-2">Daftar gratis!</p>
+          <p className="text-gray-500 mt-2 text-sm">
+            Bergabunglah bersama kami sekarang
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Nama */}
-          <div className="relative">
-            <label htmlFor="nama" className="sr-only">
-              Nama:
-            </label>
-            <IconUser />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <IconUser />
+            </div>
             <input
-              id="nama"
               type="text"
+              required
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              required
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition sm:text-sm"
               placeholder="Nama Lengkap"
             />
           </div>
 
           {/* Email */}
-          <div className="relative">
-            <label htmlFor="email" className="sr-only">
-              Email:
-            </label>
-            <IconEmail />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <IconEmail />
+            </div>
             <input
-              id="email"
               type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Email"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition sm:text-sm"
+              placeholder="Alamat Email"
             />
           </div>
 
           {/* Password */}
-          <div className="relative">
-            <label htmlFor="password" className="sr-only">
-              Password:
-            </label>
-            <IconPassword />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <IconPassword />
+            </div>
             <input
-              id="password"
               type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition sm:text-sm"
               placeholder="Password"
             />
           </div>
 
-          {/* Role */}
-          <div className="relative">
-            <label htmlFor="role" className="sr-only">
-              Role:
-            </label>
-            <IconRole />
+          {/* Role Dropdown */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <IconRole />
+            </div>
             <select
-              id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              required
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white appearance-none"
+              className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition sm:text-sm appearance-none cursor-pointer"
             >
               <option value="mahasiswa">Mahasiswa</option>
               <option value="admin">Admin</option>
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded text-sm text-red-700 animate-pulse">
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1"
+            disabled={isLoading}
+            className={`w-full py-3.5 px-4 rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:-translate-y-0.5 ${
+              isLoading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
           >
-            Daftar
+            {isLoading ? "Mendaftarkan..." : "Daftar Sekarang"}
           </button>
         </form>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
-            {error}
-          </div>
-        )}
-
-        {/* Link ke Login */}
-        <p className="text-sm text-center text-gray-600 mt-8">
+        {/* Footer */}
+        <div className="mt-8 text-center text-sm text-gray-600">
           Sudah punya akun?{" "}
           <Link
             to="/login"
-            className="font-bold text-blue-600 hover:text-blue-500"
+            className="font-bold text-blue-600 hover:text-indigo-600 hover:underline transition"
           >
             Masuk di sini
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
