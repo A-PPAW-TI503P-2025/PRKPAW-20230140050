@@ -1,7 +1,10 @@
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "INI_ADALAH_KUNCI_RAHASIA_ANDA_YANG_SANGAT_AMAN";
+
+// PERBAIKAN: Ambil secret dari process.env (file .env)
+// Jangan di-hardcode di sini!
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.register = async (req, res) => {
   try {
@@ -61,6 +64,12 @@ exports.login = async (req, res) => {
       role: user.role,
     };
 
+    // PERBAIKAN: Pastikan JWT_SECRET ada isinya
+    if (!JWT_SECRET) {
+      console.error("FATAL ERROR: JWT_SECRET is not defined in .env");
+      return res.status(500).json({ message: "Server configuration error." });
+    }
+
     const token = jwt.sign(payload, JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -70,6 +79,7 @@ exports.login = async (req, res) => {
       token: token,
     });
   } catch (error) {
+    console.error(error);
     res
       .status(500)
       .json({ message: "Terjadi kesalahan pada server", error: error.message });
