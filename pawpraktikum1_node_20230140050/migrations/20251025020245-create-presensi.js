@@ -12,19 +12,24 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-      },
-      nama: {
-        type: Sequelize.STRING,
-        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       checkIn: {
         allowNull: false,
         type: Sequelize.DATE,
       },
       checkOut: {
-        allowNull: true, // checkOut bisa kosong saat pertama kali check-in
+        allowNull: true,
         type: Sequelize.DATE,
       },
+      // BAGIAN LATITUDE & LONGITUDE DIHAPUS DARI SINI
+      // Karena akan ditambahkan oleh file migrasi 'add-location-to-presensi.js'
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
