@@ -12,3 +12,8 @@
 3. Tampilan halaman report yg berisi data presensi dari semua user
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3af4475d-cb77-41b4-9063-89686cd30036" />
 
+4. Screenshote tabel presensi di database
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/15e08295-3341-4f27-9355-c436f308c1b8" />
+
+
+
