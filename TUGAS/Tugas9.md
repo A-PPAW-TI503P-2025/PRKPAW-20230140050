@@ -9,3 +9,6 @@
 - Check-out berhasil
 <img width="1920" height="1080" alt="Screenshot 2025-11-30 193133" src="https://github.com/user-attachments/assets/1242f732-7a16-440d-9661-646a7aa8bf18" />
 
+3. Tampilan halaman report yg berisi data presensi dari semua user
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3af4475d-cb77-41b4-9063-89686cd30036" />
+
