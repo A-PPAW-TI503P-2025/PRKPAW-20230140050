@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(11, 8), // Sesuaikan tipe data dengan migrasi
         allowNull: true,
       },
+      buktiFoto: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       // ------------------------------------------------------------
     },
     {

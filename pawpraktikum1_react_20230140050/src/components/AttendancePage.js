@@ -1,29 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import "leaflet/dist/leaflet.css"; // Pastikan CSS Leaflet diimpor
+import "leaflet/dist/leaflet.css";
+import Webcam from "react-webcam"; // Import Webcam
 
-// --- FIX: Konfigurasi Icon Marker Leaflet ---
+// Fix Icon Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: icon,
   shadowUrl: iconShadow,
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
 });
-// ---------------------------------------------
 
 function AttendancePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [coords, setCoords] = useState(null); // {lat, lng}
+  const [coords, setCoords] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [image, setImage] = useState(null); // State foto selfie
+
+  const webcamRef = useRef(null);
 
   const getToken = () => localStorage.getItem("token");
 
-  // Fungsi ambil lokasi
+  // Ambil Lokasi
   const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -34,13 +37,13 @@ function AttendancePage() {
           });
           setIsLoading(false);
         },
-        (err) => {
-          setError("Gagal mendapatkan lokasi: " + err.message);
+        (error) => {
+          setError("Gagal mendapatkan lokasi: " + error.message);
           setIsLoading(false);
         }
       );
     } else {
-      setError("Geolocation tidak didukung oleh browser ini.");
+      setError("Geolocation tidak didukung browser ini.");
       setIsLoading(false);
     }
   };
@@ -49,27 +52,42 @@ function AttendancePage() {
     getLocation();
   }, []);
 
-  // --- FUNGSI CHECK-IN ---
+  // Fungsi Capture Foto Selfie
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setImage(imageSrc);
+  }, [webcamRef]);
+
+  // --- CHECK-IN (Dengan Foto) ---
   const handleCheckIn = async () => {
     setMessage("");
     setError("");
 
-    if (!coords) {
-      setError("Lokasi belum didapatkan. Mohon izinkan akses lokasi.");
+    if (!coords || !image) {
+      setError("Lokasi dan Foto Selfie wajib ada!");
       return;
     }
 
     try {
+      // 1. Konversi Base64 ke Blob
+      const blob = await (await fetch(image)).blob();
+
+      // 2. Buat FormData
+      const formData = new FormData();
+      formData.append("latitude", coords.lat);
+      formData.append("longitude", coords.lng);
+      formData.append("image", blob, "selfie.jpg"); // Nama field harus 'image' sesuai Multer
+
       const config = {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          "Content-Type": "multipart/form-data", // Header wajib upload
+        },
       };
 
       const response = await axios.post(
         "http://localhost:3001/api/attendance/check-in",
-        {
-          latitude: coords.lat,
-          longitude: coords.lng,
-        },
+        formData, // Kirim FormData, bukan JSON
         config
       );
 
@@ -79,13 +97,13 @@ function AttendancePage() {
     }
   };
 
-  // --- FUNGSI CHECK-OUT (PERBAIKAN) ---
+  // --- CHECK-OUT ---
   const handleCheckOut = async () => {
     setMessage("");
     setError("");
 
     if (!coords) {
-      setError("Lokasi belum didapatkan. Mohon tunggu sebentar.");
+      setError("Lokasi belum didapatkan.");
       return;
     }
 
@@ -94,7 +112,8 @@ function AttendancePage() {
         headers: { Authorization: `Bearer ${getToken()}` },
       };
 
-      // PERBAIKAN: Kirim lokasi saat check-out juga
+      // Check-out biasanya tidak wajib foto (opsional, tergantung kebijakan)
+      // Di sini kita pakai JSON biasa seperti sebelumnya
       const response = await axios.post(
         "http://localhost:3001/api/attendance/check-out",
         {
@@ -111,60 +130,82 @@ function AttendancePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-10 pb-10 px-4">
-      {/* Bagian Peta / Loading */}
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
+      {/* 1. Bagian Peta */}
       {isLoading ? (
-        <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl mb-8 text-center animate-pulse">
-          <p className="text-lg font-semibold text-blue-600">
-            Sedang mencari lokasi GPS Anda...
-          </p>
+        <div className="bg-white p-6 rounded-xl shadow w-full max-w-4xl mb-6 text-center animate-pulse">
+          Sedang memuat lokasi...
         </div>
       ) : coords ? (
-        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-4xl mb-8">
-          <h3 className="text-lg font-bold text-gray-700 mb-4">
-            Lokasi Anda Saat Ini:
-          </h3>
-          <div className="border-2 border-gray-200 rounded-lg overflow-hidden h-[350px] relative z-0">
+        <div className="bg-white p-6 rounded-xl shadow w-full max-w-4xl mb-6">
+          <h3 className="text-lg font-bold mb-4">Lokasi Anda:</h3>
+          <div className="border rounded-lg overflow-hidden h-64 z-0 relative">
             <MapContainer
               center={[coords.lat, coords.lng]}
               zoom={16}
               style={{ height: "100%", width: "100%" }}
-              scrollWheelZoom={false}
             >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={[coords.lat, coords.lng]}>
                 <Popup>Posisi Anda</Popup>
               </Marker>
             </MapContainer>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Lat: {coords.lat}, Lng: {coords.lng}
-          </p>
         </div>
       ) : (
-        <div className="bg-red-50 p-6 rounded-xl shadow w-full max-w-4xl mb-8 border border-red-200">
-          <p className="text-red-600 font-bold text-center">
-            {error || "Lokasi tidak ditemukan."}
-          </p>
+        <div className="bg-red-100 p-4 rounded text-red-700 w-full max-w-4xl mb-6 text-center">
+          {error || "Lokasi tidak ditemukan"}
         </div>
       )}
 
-      {/* Bagian Tombol Aksi */}
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center transform transition hover:scale-105 duration-300">
-        <h2 className="text-2xl font-extrabold mb-6 text-gray-800">
-          Catat Kehadiran
-        </h2>
+      {/* 2. Bagian Kamera (Selfie) */}
+      <div className="bg-white p-6 rounded-xl shadow w-full max-w-lg text-center mb-6">
+        <h3 className="text-lg font-bold mb-4">Ambil Foto Selfie</h3>
 
+        <div className="border-2 border-gray-300 border-dashed rounded-lg overflow-hidden bg-black mb-4 relative h-64 flex items-center justify-center">
+          {image ? (
+            <img
+              src={image}
+              alt="Selfie"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              className="w-full h-full object-cover"
+              videoConstraints={{ facingMode: "user" }}
+            />
+          )}
+        </div>
+
+        {!image ? (
+          <button
+            onClick={capture}
+            className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition"
+          >
+            📸 Ambil Foto
+          </button>
+        ) : (
+          <button
+            onClick={() => setImage(null)}
+            className="bg-gray-500 text-white px-6 py-2 rounded-full font-bold hover:bg-gray-600 transition"
+          >
+            🔄 Foto Ulang
+          </button>
+        )}
+      </div>
+
+      {/* 3. Tombol Aksi */}
+      <div className="bg-white p-6 rounded-xl shadow w-full max-w-lg text-center">
         {message && (
-          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-semibold border border-green-200">
+          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
             {message}
           </div>
         )}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-semibold border border-red-200">
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
             {error}
           </div>
         )}
@@ -172,26 +213,26 @@ function AttendancePage() {
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={handleCheckIn}
-            disabled={!coords}
-            className={`w-full py-4 px-4 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 ${
-              !coords
+            disabled={!coords || !image}
+            className={`py-3 px-4 rounded-xl text-white font-bold shadow ${
+              !coords || !image
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            Check-In (Masuk)
+            Check-In
           </button>
 
           <button
             onClick={handleCheckOut}
             disabled={!coords}
-            className={`w-full py-4 px-4 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 ${
+            className={`py-3 px-4 rounded-xl text-white font-bold shadow ${
               !coords
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            Check-Out (Pulang)
+            Check-Out
           </button>
         </div>
       </div>
