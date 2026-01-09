@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import DashboardPage from "./components/DashboardPage";
 import AttendancePage from "./components/AttendancePage";
 import ReportPage from "./components/ReportPage";
+import SensorPage from "./components/SensorPage"; // 1. Import Halaman Sensor
 import Navbar from "./components/Navbar";
 import "leaflet/dist/leaflet.css";
 
@@ -35,10 +36,9 @@ function App() {
             }
           />
 
-          {/* PERBAIKAN DI SINI: Ubah path="/attendance" menjadi path="/presensi" 
-             agar sesuai dengan Link di Navbar.js */}
+          {/* 2. FIX: Mengubah path menjadi /presensi sesuai komentar Anda */}
           <Route
-            path="/attendance"
+            path="/presensi"
             element={
               <MainLayout>
                 <AttendancePage />
@@ -46,6 +46,7 @@ function App() {
             }
           />
 
+          {/* Halaman Laporan */}
           <Route
             path="/reports"
             element={
@@ -54,10 +55,22 @@ function App() {
               </MainLayout>
             }
           />
+
+          {/* 3. BARU: Route untuk Monitoring Sensor (Sesuai Modul Langkah 4) */}
+          <Route
+            path="/monitoring"
+            element={
+              <MainLayout>
+                <SensorPage />
+              </MainLayout>
+            }
+          />
+
           <Route path="/" element={<LoginPage />} />
         </Routes>
       </div>
     </Router>
   );
 }
+
 export default App;
